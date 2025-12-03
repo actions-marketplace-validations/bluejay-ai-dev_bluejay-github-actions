@@ -1,71 +1,148 @@
-# Bluejay Simulation Action
+# GitHub Actions
 
-A GitHub Action to queue and monitor [Bluejay](https://www.getbluejay.ai/) simulations directly from your CI/CD pipeline. This action allows you to gate deployments based on simulation scores, ensuring quality and performance.
+Gate your CI/CD pipeline with real agent performance tests
 
-## Usage
+Run Bluejay simulations in GitHub Actions and fail CI if your agent doesn't meet quality standards. Just like unit tests, but for AI agents.
 
-### Prerequisites
+**Key capabilities:**
 
-1.  **Get your Bluejay API Key**: Obtain your API key from the Bluejay dashboard.
-2.  **Add to GitHub Secrets**: Go to your repository's **Settings** > **Secrets and variables** > **Actions** > **New repository secret**.
-    *   Name: `BLUEJAY_API_KEY`
-    *   Value: (Your API Key)
+- 🚨 Fail CI if score drops below your threshold
+- 🔍 Automatically test every PR and commit
+- ⚡ Zero-install; runs on GitHub-hosted runners
+- 🎯 Override prompts, knowledge bases, and digital humans per run
 
-### Basic Workflow Example
+## Before Starting
 
-Add the following step to your `.github/workflows/main.yml` (or similar) file:
+You'll need:
+
+1. **Bluejay API Key** – Get yours from the [Bluejay dashboard](https://app.getbluejay.ai/developers)
+2. **Simulation ID** – Create a simulation in Bluejay first with your test scenarios and digital humans. The simulation defines what conversations your agent will be tested on.
+
+## Quick Start
+
+### Step 1: Add your API key and variables
+
+Go to: `Settings → Secrets and variables → Actions`
+
+**Add a Secret:**
+
+- Click `New repository secret`
+- Name: `BLUEJAY_API_KEY`
+- Value: Your API key from the [developers page](https://app.getbluejay.ai/developers)
+
+**Add Variables:**
+
+- Click the `Variables` tab
+- Click `New repository variable`
+- Add the following:
+
+| Variable Name | Value | Required |
+|--------------|-------|----------|
+| `BLUEJAY_SIMULATION_ID` | Your simulation ID (e.g., `sim_12345`) | ✅ Yes |
+| `BLUEJAY_MIN_SCORE` | Minimum passing score (e.g., `80`) | No |
+| `BLUEJAY_PROMPT_ID` | Prompt override ID | No |
+| `BLUEJAY_KB_ID` | Knowledge base override ID | No |
+| `BLUEJAY_DIGITAL_HUMAN_IDS` | Comma-separated Digital Human IDs | No |
+| `BLUEJAY_PHONE_NUMBER` | Phone number override | No |
+| `BLUEJAY_SIP_URI` | SIP URI override | No |
+
+### Step 2: Create your workflow
+
+Add `.github/workflows/bluejay-tests.yml` to your repo:
 
 ```yaml
-steps:
-  - name: Run Bluejay Simulation
-    uses: bluejay-ai-dev/bluejay-github-actions@v1
-    with:
-      api_key: ${{ secrets.BLUEJAY_API_KEY }}
-      simulation_id: "your-simulation-id-here"
+name: Agent Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      simulation_id:
+        description: 'Bluejay Simulation ID to run'
+        required: false
+        type: string
+      prompt_id:
+        description: 'Optional Prompt ID override'
+        required: false
+        type: string
+      knowledge_base_id:
+        description: 'Optional Knowledge Base ID override'
+        required: false
+        type: string
+      digital_human_ids:
+        description: 'Comma-separated Digital Human IDs (e.g. "dh_1,dh_2")'
+        required: false
+        type: string
+      phone_number:
+        description: 'Optional phone number to use for this run'
+        required: false
+        type: string
+      sip_uri:
+        description: 'Optional SIP URI to use for this run'
+        required: false
+        type: string
+      min_score:
+        description: 'Minimum required score (0–100)'
+        required: false
+        type: string
+        default: '80'
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  run-bluejay-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Bluejay Tests
+        uses: bluejay-ai-dev/bluejay-github-actions@v1
+        with:
+          api_key: ${{ secrets.BLUEJAY_API_KEY }}
+          # Required: simulation id (manual input OR repo variable)
+          simulation_id: ${{ inputs.simulation_id || vars.BLUEJAY_SIMULATION_ID }}
+          # Optional overrides (manual input OR repo variable)
+          prompt_id: ${{ inputs.prompt_id || vars.BLUEJAY_PROMPT_ID }}
+          knowledge_base_id: ${{ inputs.knowledge_base_id || vars.BLUEJAY_KB_ID }}
+          digital_human_ids: ${{ inputs.digital_human_ids || vars.BLUEJAY_DIGITAL_HUMAN_IDS }}
+          phone_number: ${{ inputs.phone_number || vars.BLUEJAY_PHONE_NUMBER }}
+          sip_uri: ${{ inputs.sip_uri || vars.BLUEJAY_SIP_URI }}
+          # Behavior controls
+          wait_for_results: 'true'
+          min_score: ${{ inputs.min_score || vars.BLUEJAY_MIN_SCORE || '80' }}
+          poll_interval_seconds: '10'
+          timeout_seconds: '1500'
 ```
 
-### Advanced Usage with Optional Parameters
+### Step 3: Trigger a simulation
 
-You can customize the simulation run by providing additional parameters like prompt IDs, specific digital humans, or phone numbers.
+Make changes to your codebase and open a pull request. The GitHub Action will automatically run Bluejay tests on every PR.
 
-```yaml
-steps:
-  - name: Run Custom Bluejay Simulation
-    uses: bluejay-ai-dev/bluejay-github-actions@v1
-    with:
-      api_key: ${{ secrets.BLUEJAY_API_KEY }}
-      simulation_id: "your-simulation-id"
-      
-      # Optional Overrides
-      prompt_id: "uuid-of-prompt-version"
-      digital_human_ids: "dh-id-1, dh-id-2"
-      phone_number: "+15550123456"
-      
-      # Quality Gates
-      min_score: "90"           # Fail if score is below 90% (default: 80)
-      wait_for_results: "true"  # Set to 'false' to just queue without waiting
-      timeout_seconds: "600"    # Wait up to 10 minutes
-```
+### Step 4: Monitor your simulation
+
+Click on the **Actions** tab in your GitHub repository to view the simulation run in real-time. You'll see the status and score once the simulation completes.
 
 ## Inputs
 
-| Input | Description | Required | Default |
-|---|---|---|---|
-| `api_key` | Your Bluejay API Key. | **Yes** | N/A |
-| `simulation_id` | The ID of the simulation to run. | **Yes** | N/A |
-| `prompt_id` | UUID of a specific prompt version to use. | No | `null` |
-| `knowledge_base_id` | UUID of a specific knowledge base to use. | No | `null` |
-| `digital_human_ids` | Comma-separated list of Digital Human IDs. | No | `null` |
-| `phone_number` | Override the agent's phone number. | No | `null` |
-| `sip_uri` | Override the agent's SIP URI. | No | `null` |
-| `wait_for_results` | If `true`, polls for completion. | No | `true` |
-| `min_score` | Minimum score (0-100) to pass the step. | No | `80` |
-| `timeout_seconds` | Max time to wait for results (seconds). | No | `1500` |
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `api_key` | ✅ Yes | — | Your Bluejay API key. |
+| `simulation_id` | ✅ Yes | — | ID of the simulation to run. |
+| `prompt_id` | No | — | Override prompt for this run. |
+| `knowledge_base_id` | No | — | Override knowledge base for this run. |
+| `digital_human_ids` | No | — | Comma-separated list of Digital Human IDs. |
+| `phone_number` | No | — | Phone number override for the run. |
+| `sip_uri` | No | — | SIP URI override for the run. |
+| `wait_for_results` | No | `true` | Wait for simulation to finish. |
+| `min_score` | No | `80` | Required overall score (0–100). |
+| `poll_interval_seconds` | No | `10` | Polling frequency in seconds. |
+| `timeout_seconds` | No | `1500` | Timeout (25 minutes). |
 
 ## Outputs
 
-*   `simulation-run-id`: The ID of the queued run.
-*   `final-status`: Final status (e.g., `completed`, `failed`).
-*   `score`: The calculated score (0-100).
-*   `report-url`: URL to the simulation report.
-
+| Output | Description |
+|--------|-------------|
+| `simulation-run-id` | The ID of the queued simulation run. |
+| `final-status` | Final simulation status: `completed`, `failed`, `cancelled`, etc. |
+| `score` | Overall numeric score from the simulation. |
+| `report-url` | Link to the Bluejay simulation report (if available). |
