@@ -6,41 +6,41 @@ branding:
   color: 'blue'
 
 inputs:
-  api-key:
+  api_key:
     description: 'Bluejay API key'
     required: true
-  simulation-id:
+  simulation_id:
     description: 'Bluejay simulation ID to run'
     required: true
-  prompt-id:
+  prompt_id:
     description: 'Prompt UUID associated with this run'
     required: false
-  knowledge-base-id:
+  knowledge_base_id:
     description: 'Knowledge base UUID associated with this run'
     required: false
-  digital-human-ids:
+  digital_human_ids:
     description: 'Comma-separated list of Digital human IDs to be used'
     required: false
-  phone-number:
+  phone_number:
     description: 'Optional phone number to be used in this simulation run'
     required: false
-  sip-uri:
+  sip_uri:
     description: 'Optional SIP URI to be used in this simulation run'
     required: false
 
-  wait-for-results:
+  wait_for_results:
     description: 'If true, wait for simulation results and fail CI based on score'
     required: false
     default: 'true'
-  min-score:
+  min_score:
     description: 'Minimum required overall score (0–100). Build fails below this.'
     required: false
     default: '80'
-  poll-interval-seconds:
+  poll_interval_seconds:
     description: 'Polling interval in seconds while waiting for results'
     required: false
     default: '10'
-  timeout-seconds:
+  timeout_seconds:
     description: 'Maximum seconds to wait for simulation completion'
     required: false
     default: '900'

@@ -39,24 +39,24 @@ function parseBool(input: string | undefined, defaultValue: boolean): boolean {
 
 async function run() {
     try {
-        const apiKey = core.getInput('api-key', { required: true });
-        const simulationId = core.getInput('simulation-id', { required: true });
-        const promptId = core.getInput('prompt-id');
-        const knowledgeBaseId = core.getInput('knowledge-base-id');
-        const digitalHumanIdsInput = core.getInput('digital-human-ids');
-        const phoneNumber = core.getInput('phone-number');
-        const sipUri = core.getInput('sip-uri');
+        const apiKey = core.getInput('api_key', { required: true });
+        const simulationId = core.getInput('simulation_id', { required: true });
+        const promptId = core.getInput('prompt_id');
+        const knowledgeBaseId = core.getInput('knowledge_base_id');
+        const digitalHumanIdsInput = core.getInput('digital_human_ids');
+        const phoneNumber = core.getInput('phone_number');
+        const sipUri = core.getInput('sip_uri');
 
-        const waitForResults = parseBool(core.getInput('wait-for-results'), true);
-        const minScore = Number(core.getInput('min-score') || '80');
-        const pollIntervalSeconds = Number(core.getInput('poll-interval-seconds') || '10');
-        const timeoutSeconds = Number(core.getInput('timeout-seconds') || '900');
+        const waitForResults = parseBool(core.getInput('wait_for_results'), true);
+        const minScore = Number(core.getInput('min_score') || '80');
+        const pollIntervalSeconds = Number(core.getInput('poll_interval_seconds') || '10');
+        const timeoutSeconds = Number(core.getInput('timeout_seconds') || '900');
 
         if (!apiKey) {
-            throw new Error('api-key is required');
+            throw new Error('api_key is required');
         }
         if (!simulationId) {
-            throw new Error('simulation-id is required');
+            throw new Error('simulation_id is required');
         }
 
         core.info(`Queuing Bluejay simulation run for simulation_id=${simulationId} ...`);
@@ -103,7 +103,7 @@ async function run() {
 
         // If user only wants to queue, don't wait
         if (!waitForResults) {
-            core.info('wait-for-results=false, not polling for simulation results.');
+            core.info('wait_for_results=false, not polling for simulation results.');
             return;
         }
 
