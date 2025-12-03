@@ -60,7 +60,7 @@ steps:
 | `sip_uri` | Override the agent's SIP URI. | No | `null` |
 | `wait_for_results` | If `true`, polls for completion. | No | `true` |
 | `min_score` | Minimum score (0-100) to pass the step. | No | `80` |
-| `timeout_seconds` | Max time to wait for results (seconds). | No | `900` |
+| `timeout_seconds` | Max time to wait for results (seconds). | No | `1500` |
 
 ## Outputs
 

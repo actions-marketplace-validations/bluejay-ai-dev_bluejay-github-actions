@@ -43,7 +43,7 @@ inputs:
   timeout_seconds:
     description: 'Maximum seconds to wait for simulation completion'
     required: false
-    default: '900'
+    default: '1500'
 
 outputs:
   simulation-run-id:

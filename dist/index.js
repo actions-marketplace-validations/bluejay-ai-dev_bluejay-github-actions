@@ -24,7 +24,7 @@ async function run() {
         const waitForResults = parseBool(core.getInput('wait_for_results'), true);
         const minScore = Number(core.getInput('min_score') || '80');
         const pollIntervalSeconds = Number(core.getInput('poll_interval_seconds') || '10');
-        const timeoutSeconds = Number(core.getInput('timeout_seconds') || '900');
+        const timeoutSeconds = Number(core.getInput('timeout_seconds') || '1500');
         if (!apiKey) {
             throw new Error('api_key is required');
         }
