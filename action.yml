@@ -1,0 +1,60 @@
+name: 'Bluejay Simulation Action'
+description: 'Queue and optionally wait for Bluejay simulation runs to gate CI.'
+author: 'Bluejay Intelligence Inc.'
+branding:
+  icon: 'play'
+  color: 'blue'
+
+inputs:
+  api-key:
+    description: 'Bluejay API key'
+    required: true
+  simulation-id:
+    description: 'Bluejay simulation ID to run'
+    required: true
+  prompt-id:
+    description: 'Prompt UUID associated with this run'
+    required: false
+  knowledge-base-id:
+    description: 'Knowledge base UUID associated with this run'
+    required: false
+  digital-human-ids:
+    description: 'Comma-separated list of Digital human IDs to be used'
+    required: false
+  phone-number:
+    description: 'Optional phone number to be used in this simulation run'
+    required: false
+  sip-uri:
+    description: 'Optional SIP URI to be used in this simulation run'
+    required: false
+
+  wait-for-results:
+    description: 'If true, wait for simulation results and fail CI based on score'
+    required: false
+    default: 'true'
+  min-score:
+    description: 'Minimum required overall score (0–100). Build fails below this.'
+    required: false
+    default: '80'
+  poll-interval-seconds:
+    description: 'Polling interval in seconds while waiting for results'
+    required: false
+    default: '10'
+  timeout-seconds:
+    description: 'Maximum seconds to wait for simulation completion'
+    required: false
+    default: '900'
+
+outputs:
+  simulation-run-id:
+    description: 'ID of the queued Bluejay simulation run'
+  final-status:
+    description: 'Final status of the simulation (completed/failed/cancelled)'
+  score:
+    description: 'Overall score from the simulation results (0–100)'
+  report-url:
+    description: 'Link to the Bluejay simulation report (if available)'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
